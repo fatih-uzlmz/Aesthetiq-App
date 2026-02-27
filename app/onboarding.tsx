@@ -112,7 +112,8 @@ export default function OnboardingScreen() {
     ];
 
     const handleTestimonialScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const index = Math.round(e.nativeEvent.contentOffset.x / (width - 48));
+        // Card width: width - 48. Gap: 16. Total snap interval: width - 32.
+        const index = Math.round(e.nativeEvent.contentOffset.x / (width - 32));
         setActiveTestimonial(index);
     };
 
@@ -250,19 +251,22 @@ export default function OnboardingScreen() {
                         <View style={styles.bottomSection}>
                             <View style={styles.textBlock}>
                                 <Text style={styles.headline}>
-                                    Your reset starts now.
+                                    Your reset starts
                                 </Text>
-
+                                <Text style={styles.headlineNow}>
+                                    now.
+                                </Text>
                             </View>
 
                             {/* Testimonials Carousel */}
                             <ScrollView
                                 horizontal
-                                pagingEnabled
+                                snapToInterval={width - 32}
+                                decelerationRate="fast"
                                 showsHorizontalScrollIndicator={false}
                                 onMomentumScrollEnd={handleTestimonialScroll}
                                 style={styles.testimonialScroll}
-                                contentContainerStyle={styles.testimonialScrollContent}
+                                contentContainerStyle={[styles.testimonialScrollContent, { gap: 16 }]}
                             >
                                 {testimonials.map((text, idx) => (
                                     <View key={idx} style={[styles.testimonialCard, { width: width - 48 }]}>
@@ -270,7 +274,7 @@ export default function OnboardingScreen() {
                                             {[1, 2, 3, 4, 5].map(i => <Star key={`${idx}-${i}`} size={14} color="#FBBF24" fill="#FBBF24" />)}
                                         </View>
                                         <Text style={styles.testimonialText}>
-                                            "{text}"
+                                            &quot;{text}&quot;
                                         </Text>
                                     </View>
                                 ))}
@@ -390,7 +394,7 @@ const styles = StyleSheet.create({
     brandSubtitle: { color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: '500', marginTop: 4 },
 
     // Floating Hero Styles
-    heroContainer: { height: height * 0.45, position: 'relative', marginTop: 20 },
+    heroContainer: { height: height * 0.40, position: 'relative', marginTop: 10 },
     glassCard: {
         position: 'absolute',
         backgroundColor: 'rgba(22, 22, 30, 0.6)',
@@ -422,9 +426,10 @@ const styles = StyleSheet.create({
     xpText: { color: '#fff', fontSize: 18, fontWeight: '800' },
 
     // Bottom Section
-    bottomSection: { flex: 1, justifyContent: 'flex-end', paddingBottom: 20 },
-    textBlock: { marginBottom: 30, alignItems: 'center' },
-    headline: { fontSize: 36, fontWeight: '800', color: '#fff', lineHeight: 40, textAlign: 'center', marginBottom: 12 },
+    bottomSection: { flexShrink: 0, paddingBottom: 40, paddingTop: 0, justifyContent: 'flex-end', flex: 1 },
+    textBlock: { marginBottom: 20, alignItems: 'center' },
+    headline: { fontSize: 32, fontWeight: '800', color: '#fff', lineHeight: 36, textAlign: 'center', marginBottom: 0 },
+    headlineNow: { fontSize: 32, fontWeight: '800', color: '#fff', lineHeight: 36, textAlign: 'center', marginBottom: 12 },
     subheadline: { fontSize: 16, color: 'rgba(255,255,255,0.6)', fontWeight: '400', textAlign: 'center' },
 
     testimonialCard: {
@@ -440,7 +445,7 @@ const styles = StyleSheet.create({
     testimonialText: { color: 'rgba(255,255,255,0.9)', fontSize: 13, fontStyle: 'italic', lineHeight: 20 },
     testimonialScroll: { marginBottom: 0, height: 120, overflow: 'visible' },
     testimonialScrollContent: { alignItems: 'flex-start' },
-    dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 12, marginBottom: 24 },
+    dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 12, marginBottom: 30 },
     dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.2)' },
     dotActive: { backgroundColor: '#fff' },
 

@@ -146,7 +146,7 @@ export function StepAnalyzing({ onNext }: StepAnalyzingProps) {
 
             {/* Hopeful Message Layer */}
             <Animated.View style={[styles.messageOverlay, messageStyle]} pointerEvents="none">
-                <Text style={styles.hopefulTitle}>You don't lack potential.</Text>
+                <Text style={styles.hopefulTitle}>You don&apos;t lack potential.</Text>
                 <Text style={styles.hopefulSubtitle}>You lack a system.</Text>
             </Animated.View>
         </View>

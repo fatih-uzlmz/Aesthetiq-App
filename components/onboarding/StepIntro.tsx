@@ -35,13 +35,13 @@ export const StepIntro: React.FC<StepIntroProps> = ({ onNext }) => {
                 </Animated.Text>
 
                 <Animated.Text style={[styles.subtext, style2]}>
-                    You're tired of starting over.
+                    You&apos;re tired of starting over.
                 </Animated.Text>
             </View>
 
             <Animated.View style={[styles.footer, buttonStyle]}>
                 <TouchableOpacity style={styles.button} onPress={onNext} activeOpacity={0.8}>
-                    <Text style={styles.buttonText}>Let's Fix It</Text>
+                    <Text style={styles.buttonText}>Let&apos;s Fix It</Text>
                     <ArrowRight size={20} color="#000" />
                 </TouchableOpacity>
             </Animated.View>

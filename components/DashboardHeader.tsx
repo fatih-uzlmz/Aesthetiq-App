@@ -116,7 +116,7 @@ export function DashboardHeader({ user, profile, completedCount, streak }: Props
                     <View style={styles.riskContent}>
                         <AlertTriangle size={18} color="#F59E0B" style={{ marginTop: 2 }} />
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.riskTitle}>You haven't shown up today.</Text>
+                            <Text style={styles.riskTitle}>You haven&apos;t shown up today.</Text>
                             <Text style={styles.riskSubtitle}>One action protects your streak.</Text>
                         </View>
                         <TouchableOpacity onPress={() => setIsRiskBannerVisible(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -139,7 +139,7 @@ export function DashboardHeader({ user, profile, completedCount, streak }: Props
                             marginBottom: 8,
                             paddingHorizontal: 4
                         }}>
-                            It's a new day, make it count.
+                            It&apos;s a new day, make it count.
                         </Text>
                     )}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>

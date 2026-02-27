@@ -75,7 +75,7 @@ export function StepSymptoms({ onNext }: StepSymptomsProps) {
                 </Text>
             </View>
 
-            <Text style={styles.subtext}>Select all symptoms you've been acquiring:</Text>
+            <Text style={styles.subtext}>Select all symptoms you&apos;ve been acquiring:</Text>
 
             <ScrollView
                 style={styles.scrollView}

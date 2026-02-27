@@ -113,7 +113,7 @@ export const StepAnalysis: React.FC<StepAnalysisProps> = ({ onNext }) => {
 
             <Animated.View entering={FadeInDown.delay(900).duration(600)} style={styles.footer}>
                 <TouchableOpacity style={styles.button} onPress={onNext}>
-                    <Text style={styles.buttonText}>Let's Go</Text>
+                    <Text style={styles.buttonText}>Let&apos;s Go</Text>
                 </TouchableOpacity>
             </Animated.View>
         </View>

@@ -142,7 +142,7 @@ export function StepFinal({ onNext }: StepFinalProps) {
                         end={{ x: 1, y: 0 }}
                         style={styles.nextButton}
                     >
-                        <Text style={[styles.nextButtonText, { color: '#fff' }]}>See what's possible</Text>
+                        <Text style={[styles.nextButtonText, { color: '#fff' }]}>See what&apos;s possible</Text>
                         <ArrowRight size={20} color="#fff" />
                     </LinearGradient>
                 </TouchableOpacity>
