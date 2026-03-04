@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import Svg, { Defs, LinearGradient, Rect, Stop, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop, Text as SvgText } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
@@ -13,91 +13,61 @@ export const StepAnalysis: React.FC<StepAnalysisProps> = ({ onNext }) => {
     return (
         <View style={styles.container}>
             <Animated.View entering={FadeInDown.delay(100).duration(600)}>
-                <Text style={styles.title}>We got some <Text style={{ color: '#EF4444' }}>BAD</Text> news...</Text>
+                <Text style={styles.title}>Your discipline is <Text style={{ color: '#EF4444' }}>FADING</Text></Text>
                 <Text style={styles.subtitle}>
-                    Your responses show 35% <Text style={{ color: '#EF4444', fontWeight: 'bold' }}>more</Text> signs of poor lifestyle habits compared to the average.
+                    You have the desire to improve, but your daily habits are actively sabotaging your momentum.
                 </Text>
             </Animated.View>
 
             <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.chartContainer}>
-                <Svg height="300" width={width - 48} viewBox="0 0 300 300">
+                <Svg height="250" width={width - 48} viewBox="0 0 300 250">
                     <Defs>
-                        <LinearGradient id="redGrad" x1="0" y1="0" x2="0" y2="1">
-                            <Stop offset="0" stopColor="#F87171" stopOpacity="1" />
-                            <Stop offset="1" stopColor="#991B1B" stopOpacity="1" />
+                        {/* Gradient for the line itself, changing from white/green to red as it falls */}
+                        <LinearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                            <Stop offset="0" stopColor="#E2E8F0" stopOpacity="1" />
+                            <Stop offset="0.3" stopColor="#34D399" stopOpacity="1" />
+                            <Stop offset="0.8" stopColor="#EF4444" stopOpacity="1" />
                         </LinearGradient>
-                        <LinearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
-                            <Stop offset="0" stopColor="#34D399" stopOpacity="1" />
-                            <Stop offset="1" stopColor="#064E3B" stopOpacity="1" />
-                        </LinearGradient>
-                        <LinearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
-                            <Stop offset="0" stopColor="rgba(255,255,255,0.1)" stopOpacity="1" />
-                            <Stop offset="1" stopColor="rgba(255,255,255,0.02)" stopOpacity="1" />
-                        </LinearGradient>
+
                     </Defs>
 
-                    {/* Chart Background/Axis */}
-                    <Rect x="0" y="0" width="300" height="300" fill="transparent" />
+                    {/* Chart Background/Axis Base */}
+                    <Rect x="0" y="0" width="300" height="250" fill="transparent" />
 
-                    {/* Your Score Bar */}
-                    {/* Shadow/Glow effect simulated with opacity layer behind or just rich gradient */}
-                    <Rect
-                        x="50"
-                        y="50"
-                        width="80"
-                        height="200"
-                        fill="url(#redGrad)"
-                        rx="12"
-                    />
-                    <SvgText
-                        x="90"
-                        y="40"
-                        textAnchor="middle"
-                        fill="#fff"
-                        fontSize="20"
-                        fontWeight="bold"
-                    >
-                        47%
+                    {/* X and Y Axes */}
+                    <Path d="M 20 20 L 20 230" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round" />
+                    <Path d="M 20 230 L 280 230" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round" />
+
+                    {/* Axis Labels */}
+                    <SvgText x="150" y="248" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="12" fontWeight="500">
+                        Time
                     </SvgText>
-                    <SvgText
-                        x="90"
-                        y="275"
-                        textAnchor="middle"
-                        fill="rgba(255,255,255,0.6)"
-                        fontSize="14"
-                        fontWeight="500"
-                    >
-                        Your Score
+                    <SvgText x="10" y="125" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="12" fontWeight="500" rotation="-90" origin="10, 125">
+                        Performance
                     </SvgText>
 
-                    {/* Average Bar */}
-                    <Rect
-                        x="170"
-                        y="180"
-                        width="80"
-                        height="70"
-                        fill="url(#greenGrad)"
-                        rx="12"
+                    {/* The Line Curve: Starts middle-low, bumps up (motivation), then crashes down (friction) */}
+                    <Path
+                        d="M 22 120 Q 80 70, 140 120 T 278 230"
+                        fill="none"
+                        stroke="url(#lineGrad)"
+                        strokeWidth="5"
+                        strokeLinecap="round"
                     />
-                    <SvgText
-                        x="210"
-                        y="170"
-                        textAnchor="middle"
-                        fill="#fff"
-                        fontSize="20"
-                        fontWeight="bold"
-                    >
-                        12%
+
+                    {/* Peak / Motivation Point */}
+                    <Circle cx="81" cy="94" r="5" fill="#34D399" />
+                    <SvgText x="81" y="70" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="600">
+                        Initial Motivation
                     </SvgText>
-                    <SvgText
-                        x="210"
-                        y="275"
-                        textAnchor="middle"
-                        fill="rgba(255,255,255,0.6)"
-                        fontSize="14"
-                        fontWeight="500"
-                    >
-                        Average
+
+                    {/* Trough / Reality Point */}
+                    <Circle cx="260" cy="216" r="5" fill="#EF4444" />
+                    <SvgText x="272" y="170" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="600">
+                        Friction &amp;
+                    </SvgText>
+                    <SvgText x="272" y="187" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="600">
+                        Burnout
                     </SvgText>
                 </Svg>
             </Animated.View>
@@ -107,7 +77,7 @@ export const StepAnalysis: React.FC<StepAnalysisProps> = ({ onNext }) => {
                 style={styles.infoBox}
             >
                 <Text style={styles.infoText}>
-                    This is normal. People in your age group often face extra challenges with self-commitment.
+                    Motivation gets you started, but it&apos;s unreliable. Discipline is what keeps you going when it gets hard.
                 </Text>
             </Animated.View>
 

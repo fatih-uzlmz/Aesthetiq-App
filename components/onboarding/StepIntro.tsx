@@ -16,11 +16,11 @@ export const StepIntro: React.FC<StepIntroProps> = ({ onNext }) => {
 
     useEffect(() => {
         // Sequence: Text 1 -> Wait -> Text 2 -> Button
-        opacity1.value = withTiming(1, { duration: 1000 });
+        opacity1.value = withTiming(1, { duration: 600 });
 
-        opacity2.value = withDelay(1500, withTiming(1, { duration: 1000 }));
+        opacity2.value = withDelay(1000, withTiming(1, { duration: 600 }));
 
-        buttonOpacity.value = withDelay(3000, withTiming(1, { duration: 800 }));
+        buttonOpacity.value = withDelay(1800, withTiming(1, { duration: 500 }));
     }, []);
 
     const style1 = useAnimatedStyle(() => ({ opacity: opacity1.value }));
