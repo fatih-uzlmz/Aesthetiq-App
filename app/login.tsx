@@ -1,69 +1,34 @@
 import { AnimatedGradient } from '@/components/AnimatedGradient';
 import { useSession } from '@/ctx';
-import { supabase } from '@/lib/supabase';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { ArrowRight, Mail, Lock } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function OnboardingScreen() {
-    const { signUp, completeOnboarding, signIn } = useSession();
+export default function LoginScreen() {
+    const { signIn, completeOnboarding } = useSession();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     
     const [email, setEmail] = useState('');
-    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
 
-    const handleCreateAccount = async () => {
-        if (!email || !username || !password) {
-            setErrorMsg('Please fill in all fields.');
+    const handleLogin = async () => {
+        if (!email || !password) {
+            setErrorMsg('Please fill in both fields.');
             return;
         }
 
         setErrorMsg('');
         setLoading(true);
         try {
-            // Create user
-            await signUp(email.trim().toLowerCase(), password, { username: username.trim(), full_name: username.trim() });
-
-            // Default Protocol
-            const today = new Date().toDateString();
-            const defaultIds = ['c_new_1', 'c_new_2', 'c6', 'c_new_4']; // Phone-Free, Reading, Study, Walk
-            await AsyncStorage.multiSet([
-                ['daily_lockin_date', today],
-                ['daily_lockin_ids', JSON.stringify(defaultIds)],
-                // generic header focus
-                ['daily_focus_date', today],
-                ['daily_focus_id', defaultIds[0]]
-            ]);
-
-            const { data } = await supabase.auth.getSession();
-            const currentSession = data.session;
-
-            if (currentSession?.user) {
-                // Upsert the profile: if a trigger already made it, this updates it. If no trigger exists, this creates it!
-                const { error: profileError } = await supabase
-                    .from('profiles')
-                    .upsert({ 
-                        id: currentSession.user.id,
-                        username: username,
-                        full_name: username
-                    });
-                
-                if (profileError) {
-                    console.log("Profile upsert error:", profileError);
-                }
-            }
-            
+            await signIn(email.trim().toLowerCase(), password);
             router.replace('/habit-setup');
-
         } catch (error: any) {
-            console.error('Error during account creation:', error);
-            setErrorMsg(error.message || 'Error occurred. Please try again.');
+            console.error('Error during log in:', error);
+            setErrorMsg(error.message || 'Invalid login credentials.');
         } finally {
             setLoading(false);
         }
@@ -82,47 +47,19 @@ export default function OnboardingScreen() {
                         <View style={styles.centerSection}>
                             <View style={styles.textBlock}>
                                 <Text style={styles.headline}>
-                                    Welcome to
+                                    Welcome back to
                                 </Text>
-                                <TouchableOpacity 
-                                    activeOpacity={1}
-                                    onPress={async () => {
-                                        setLoading(true);
-                                        try {
-                                            await signIn('bedrifatih6@gmail.com', 'YOUR_PASSWORD');
-                                            router.replace('/habit-setup');
-                                        } catch(e: any) {
-                                            setErrorMsg("Dev login failed: " + e.message);
-                                        } finally {
-                                            setLoading(false);
-                                        }
-                                    }}
-                                >
-                                    <Text style={styles.brandTitleHeadline}>
-                                        AESTHETIQ
-                                    </Text>
-                                </TouchableOpacity>
+                                <Text style={styles.brandTitleHeadline}>
+                                    AESTHETIQ
+                                </Text>
                                 <Text style={styles.subheadline}>
-                                    Prove it to yourself.
+                                    Log in to continue your journey.
                                 </Text>
                             </View>
 
                             {/* Form Fields */}
                             <View style={styles.formContainer}>
                                 {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
-
-                                <View style={styles.inputWrapper}>
-                                    {/* No icon for Username in the sleek design */}
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="USERNAME"
-                                        placeholderTextColor="rgba(255,255,255,0.4)"
-                                        value={username}
-                                        onChangeText={setUsername}
-                                        autoCapitalize="none"
-                                        autoComplete="username"
-                                    />
-                                </View>
 
                                 <View style={styles.inputWrapper}>
                                     <Mail size={16} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
@@ -148,25 +85,25 @@ export default function OnboardingScreen() {
                                         onChangeText={setPassword}
                                         autoCapitalize="none"
                                         secureTextEntry
-                                        autoComplete="new-password"
+                                        autoComplete="password"
                                     />
                                 </View>
                             </View>
                         </View>
 
                         <View style={styles.bottomSection}>
-                            <TouchableOpacity onPress={() => router.push('/login')} activeOpacity={0.7} style={styles.loginLinkContainer}>
-                                <Text style={styles.loginLinkText}>Have an account? <Text style={styles.loginLinkBold}>Log In</Text></Text>
+                            <TouchableOpacity onPress={() => router.replace('/onboarding')} activeOpacity={0.7} style={styles.loginLinkContainer}>
+                                <Text style={styles.loginLinkText}>Don't have an account? <Text style={styles.loginLinkBold}>Sign Up</Text></Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                onPress={handleCreateAccount}
+                                onPress={handleLogin}
                                 activeOpacity={0.9}
                                 style={styles.buttonShadow}
                                 disabled={loading}
                             >
                                 <View style={styles.startButton}>
-                                    <Text style={styles.startButtonText}>CREATE ACCOUNT</Text>
+                                    <Text style={styles.startButtonText}>LOG IN</Text>
                                     <ArrowRight size={20} color="#000" />
                                 </View>
                             </TouchableOpacity>
@@ -177,7 +114,7 @@ export default function OnboardingScreen() {
                 {loading && (
                     <View style={styles.loadingOverlay}>
                         <ActivityIndicator size="large" color="#fff" />
-                        <Text style={styles.loadingText}>Creating account...</Text>
+                        <Text style={styles.loadingText}>Logging in...</Text>
                     </View>
                 )}
             </SafeAreaView>
@@ -191,10 +128,10 @@ const styles = StyleSheet.create({
     
     // Center Section Form
     centerSection: { flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingTop: 60 },
-    textBlock: { marginBottom: 50, width: '100%', alignItems: 'center' },
-    headline: { fontSize: 36, fontWeight: '800', color: '#fff', lineHeight: 42, marginBottom: 4, textAlign: 'center' },
-    brandTitleHeadline: { color: '#fff', fontSize: 36, fontWeight: '900', letterSpacing: 4, textTransform: 'uppercase', lineHeight: 42, marginBottom: 16, textAlign: 'center' },
-    subheadline: { fontSize: 16, color: 'rgba(255,255,255,0.6)', fontWeight: '500', textAlign: 'center' },
+    textBlock: { marginBottom: 50, alignItems: 'flex-start' },
+    headline: { fontSize: 36, fontWeight: '800', color: '#fff', lineHeight: 42, marginBottom: 4 },
+    brandTitleHeadline: { color: '#fff', fontSize: 36, fontWeight: '900', letterSpacing: 4, textTransform: 'uppercase', lineHeight: 42, marginBottom: 16 },
+    subheadline: { fontSize: 16, color: 'rgba(255,255,255,0.6)', fontWeight: '500' },
 
     formContainer: { width: '100%', gap: 16 },
     errorText: { color: '#FF6B6B', fontSize: 14, fontWeight: '500', marginBottom: 8 },
@@ -216,8 +153,6 @@ const styles = StyleSheet.create({
     loginLinkText: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '500' },
     loginLinkBold: { color: '#fff', fontWeight: '700' },
     
-    // Dev Login styles removed
-
     buttonShadow: {
         shadowColor: "#fff",
         shadowOffset: { width: 0, height: 0 },

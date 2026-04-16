@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AuthContextType = {
     signIn: (email: string, password: string) => Promise<void>;
@@ -12,6 +13,7 @@ type AuthContextType = {
     completeOnboarding: () => void;
     signInAnonymously: () => Promise<void>;
     isAnonymous: boolean;
+    resetOnboarding: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -24,6 +26,7 @@ const AuthContext = createContext<AuthContextType>({
     completeOnboarding: () => { },
     signInAnonymously: async () => { },
     isAnonymous: false,
+    resetOnboarding: async () => { },
 });
 
 export function useSession() {
@@ -43,19 +46,32 @@ export function SessionProvider(props: React.PropsWithChildren) {
     const [isAnonymous, setIsAnonymous] = useState(false);
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        // Automatically mark as onboarded if returning from previous session
+        const initSession = async () => {
+            const hasOnboardedStr = await AsyncStorage.getItem('has_onboarded');
+            if (hasOnboardedStr === 'true') {
+                setIsOnboarded(true);
+            }
+
+            const { data: { session } } = await supabase.auth.getSession();
             setSession(session);
+            
             if (session?.user?.email?.includes('guest_')) {
                 setIsAnonymous(true);
+            } else if (session) {
+                // Any non-guest active session means they are fully onboarded
+                setIsOnboarded(true);
             }
+
             if (session) {
-                // If we have a session, we're done loading (unless we want to do more checks)
                 setIsLoading(false);
             } else {
                 // No session? Auto-create guest account
                 signInAnonymously().finally(() => setIsLoading(false));
             }
-        });
+        };
+
+        initSession();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
@@ -128,7 +144,14 @@ export function SessionProvider(props: React.PropsWithChildren) {
                 session,
                 isLoading,
                 isOnboarded,
-                completeOnboarding: () => setIsOnboarded(true),
+                completeOnboarding: () => {
+                    setIsOnboarded(true);
+                    AsyncStorage.setItem('has_onboarded', 'true').catch(() => {});
+                },
+                resetOnboarding: async () => {
+                    setIsOnboarded(false);
+                    await AsyncStorage.removeItem('has_onboarded');
+                },
                 signInAnonymously,
                 isAnonymous
             }}

@@ -26,21 +26,21 @@ function RootLayoutNav() {
   const segments = useSegments();
 
 
-  useEffect(() => {
-    if (isLoading) return;
+    useEffect(() => {
+        if (isLoading) return;
 
-    const inTabsGroup = segments[0] === '(tabs)';
-    const inAuthGroup = segments[0] === 'challenge' || segments[0] === 'modal';
+        const inTabsGroup = segments[0] === '(tabs)';
+        const inAuthGroup = segments[0] === 'challenge' || segments[0] === 'modal';
 
-    if (isOnboarded && !inTabsGroup && !inAuthGroup) {
-      if (segments[0] === 'onboarding' || !segments[0]) {
-        router.replace('/(tabs)');
-      }
-    } else if (!isOnboarded && segments[0] !== 'onboarding') {
-      router.replace('/onboarding');
-    }
+        if (isOnboarded && !inTabsGroup && !inAuthGroup) {
+            if (segments[0] === 'onboarding' || segments[0] === 'login' || !segments[0]) {
+                router.replace('/(tabs)');
+            }
+        } else if (!isOnboarded && segments[0] !== 'onboarding' && segments[0] !== 'login' && segments[0] !== 'habit-setup') {
+            router.replace('/onboarding');
+        }
 
-  }, [isLoading, isOnboarded, segments]);
+    }, [isLoading, isOnboarded, segments]);
 
   if (isLoading) {
     return (
@@ -59,6 +59,9 @@ function RootLayoutNav() {
       }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="habit-setup" options={{ headerShown: false }} />
+        <Stack.Screen name="camera" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         <Stack.Screen name="challenge/[id]" options={{ headerShown: false }} />
       </Stack>

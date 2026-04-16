@@ -4,20 +4,39 @@ import { useSession } from '@/ctx';
 import { supabase } from '@/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, FileText, LogOut, Shield, Trash2 } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, FileText, LogOut, Shield, Trash2, List } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SettingsScreen() {
     const router = useRouter();
-    const { session, signOut, isAnonymous } = useSession();
+    const { session, signOut, isAnonymous, resetOnboarding } = useSession();
     const [loading, setLoading] = useState(false);
 
     // Link Account State
     const [linking, setLinking] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+
+    const handleChangePassword = async () => {
+        if (!newPassword || newPassword.length < 6) {
+            Alert.alert('Error', 'Password must be at least 6 characters.');
+            return;
+        }
+        setLoading(true);
+        try {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+            if (error) throw error;
+            Alert.alert('Success', 'Your password has been securely updated!');
+            setNewPassword('');
+        } catch (error: any) {
+            Alert.alert('Error', error.message || 'Failed to update password.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleLogout = () => {
         Alert.alert('Log Out', 'Are you sure you want to log out?' + (isAnonymous ? '\nWARNING: You are on a Guest Account. If you log out without linking an email, you will lose your data forever.' : ''), [
@@ -31,6 +50,27 @@ export default function SettingsScreen() {
                 }
             }
         ]);
+    };
+
+    const handleEditHabits = async () => {
+        Alert.alert(
+            'Edit Habits',
+            'Are you sure you want to pick new habits? This will reset your current selected lineup.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Continue',
+                    onPress: async () => {
+                        try {
+                            await AsyncStorage.removeItem('user_habits');
+                            router.replace('/habit-setup');
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const handleDeleteAccount = () => {
@@ -150,9 +190,31 @@ export default function SettingsScreen() {
                                     )}
                                 </View>
                             ) : (
-                                <View style={styles.row}>
-                                    <Text style={styles.label}>Email</Text>
-                                    <Text style={styles.value}>{session?.user?.email}</Text>
+                                <View>
+                                    <View style={styles.row}>
+                                        <Text style={styles.label}>Email</Text>
+                                        <Text style={styles.value}>{session?.user?.email}</Text>
+                                    </View>
+                                    <View style={styles.separator} />
+                                    <View style={{ padding: 16, gap: 12 }}>
+                                        <Text style={[styles.label, { fontSize: 13, color: Colors.dark.textSecondary, marginBottom: 4, letterSpacing: 1 }]}>CHANGE PASSWORD</Text>
+                                        <TextInput
+                                            placeholder="New Password (min. 6 chars)"
+                                            placeholderTextColor="rgba(255,255,255,0.4)"
+                                            style={styles.input}
+                                            value={newPassword}
+                                            onChangeText={setNewPassword}
+                                            autoCapitalize="none"
+                                            secureTextEntry
+                                        />
+                                        <TouchableOpacity 
+                                            onPress={handleChangePassword} 
+                                            style={[styles.actionButton, { backgroundColor: '#fff', opacity: newPassword.length >= 6 ? 1 : 0.5, marginTop: 4 }]}
+                                            disabled={newPassword.length < 6 || loading}
+                                        >
+                                            {loading ? <ActivityIndicator color="#000" /> : <Text style={[styles.actionButtonText, { color: '#000' }]}>Update Password</Text>}
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             )}
                         </View>
@@ -183,6 +245,13 @@ export default function SettingsScreen() {
                     {/* Actions Section */}
                     <View style={styles.section}>
                         <View style={styles.card}>
+                            <TouchableOpacity style={styles.menuItem} onPress={handleEditHabits}>
+                                <View style={styles.menuItemLeft}>
+                                    <List size={20} color={Colors.dark.textSecondary} />
+                                    <Text style={styles.menuItemText}>Edit Active Habits</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <View style={styles.separator} />
                             <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
                                 <View style={styles.menuItemLeft}>
                                     <LogOut size={20} color={Colors.dark.textSecondary} />
@@ -201,7 +270,12 @@ export default function SettingsScreen() {
                         </View>
                     </View>
 
-                    <Text style={styles.version}>Version 1.0.0</Text>
+                    <TouchableOpacity activeOpacity={1} onPress={async () => {
+                        await resetOnboarding();
+                        router.replace('/onboarding');
+                    }}>
+                        <Text style={styles.version}>Version 1.0.0</Text>
+                    </TouchableOpacity>
 
                 </ScrollView>
             </SafeAreaView>

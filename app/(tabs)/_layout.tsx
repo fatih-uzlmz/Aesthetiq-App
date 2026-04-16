@@ -1,12 +1,31 @@
 import { BlurView } from 'expo-blur';
 import { Tabs } from 'expo-router';
-import { Home, Trophy, User, Users } from 'lucide-react-native';
+import { CircleDot, Home, Trophy, User, Users } from 'lucide-react-native';
 import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+
+const CustomRecordIcon = ({ size, color }: { size: number, color: string }) => (
+  <View style={{
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+    borderWidth: 3,
+    borderColor: color,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}>
+    <View style={{
+      width: size - 10,
+      height: size - 10,
+      borderRadius: (size - 10) / 2,
+      backgroundColor: color,
+    }} />
+  </View>
+);
 
 const AnimatedIcon = ({ focused, icon: IconComponent, color, size = 24 }: { focused: boolean, icon: any, color: string, size?: number }) => {
   const scale = useSharedValue(1);
@@ -71,29 +90,22 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ focused, color }) => <AnimatedIcon focused={focused} icon={Home} color={color} />,
+          tabBarIcon: ({ focused, color }) => <AnimatedIcon focused={focused} icon={Home} color={color} size={28} />,
         }}
       />
       <Tabs.Screen
-        name="friends"
+        name="record"
         options={{
-          title: 'Social',
-          tabBarIcon: ({ focused, color }) => <AnimatedIcon focused={focused} icon={Users} color={color} />,
-          href: null, // Temporarily hidden
+          title: 'Record',
+          tabBarIcon: ({ focused, color }) => <AnimatedIcon focused={focused} icon={CustomRecordIcon} color={color} size={28} />,
         }}
       />
-      <Tabs.Screen
-        name="challenges"
-        options={{
-          title: 'Challenges',
-          tabBarIcon: ({ focused, color }) => <AnimatedIcon focused={focused} icon={Trophy} color={color} />,
-        }}
-      />
+
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ focused, color }) => <AnimatedIcon focused={focused} icon={User} color={color} />,
+          tabBarIcon: ({ focused, color }) => <AnimatedIcon focused={focused} icon={User} color={color} size={28} />,
         }}
       />
     </Tabs>

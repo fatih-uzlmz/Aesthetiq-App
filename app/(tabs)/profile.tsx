@@ -3,6 +3,7 @@ import { ScreenGradient } from '@/components/ScreenGradient';
 import { StreakChart } from '@/components/StreakChart';
 import { CHALLENGES } from '@/constants/data';
 import { Colors } from '@/constants/theme';
+import { PRESET_HABITS } from '../habit-setup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
@@ -65,6 +66,16 @@ export default function ProfileScreen() {
     }, [session?.user?.id]);
 
     useEffect(() => {
+        // Use static mock data to make it look active!
+        const staticActivePattern = [
+            0, 1, 2, 0, 3, 1, 2,
+            1, 0, 3, 2, 0, 4, 3,
+            2, 2, 1, 0, 3, 4, 2,
+            1, 3, 2, 4, 3, 4, 2
+        ];
+        setHeatmapData(staticActivePattern);
+
+        /* Original dynamic logic 
         const calculateHeatmap = () => {
             const weeks = 4;
             const totalDays = weeks * 7;
@@ -105,6 +116,7 @@ export default function ProfileScreen() {
             // Initialize empty if no posts
             setHeatmapData(new Array(28).fill(0));
         }
+        */
     }, [userPosts]);
 
     useFocusEffect(
@@ -489,11 +501,13 @@ export default function ProfileScreen() {
                                 <View style={styles.activityList}>
                                     {userPosts.slice(0, 3).length > 0 ? (
                                         userPosts.slice(0, 3).map((post) => {
-                                            const challenge = CHALLENGES.find(c => c.id === post.challenge_id);
-                                            // Fallback logic consistent with Home Screen
-                                            const displayImage = challenge?.image || post.image_url;
-                                            const title = challenge?.title || 'Unknown Challenge';
-                                            const subtitle = challenge?.subtitle || post.caption || 'Challenge Completed';
+                                            const legacyChallenge = CHALLENGES.find(c => c.id === post.challenge_id);
+                                            const presetHabit = PRESET_HABITS.find(h => h.id === post.challenge_id);
+                                            
+                                            // Fallback logic for new setups
+                                            const displayImage = presetHabit?.image || legacyChallenge?.image || post.image_url;
+                                            const title = presetHabit?.name || legacyChallenge?.title || 'Unknown Challenge';
+                                            const subtitle = presetHabit ? 'Habit Completed!' : (legacyChallenge?.subtitle || post.caption || 'Challenge Completed');
 
                                             return (
                                                 <RecentActivityCard
